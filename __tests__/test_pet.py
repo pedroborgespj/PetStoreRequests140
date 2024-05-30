@@ -3,6 +3,8 @@ import pytest    # framework de teste de unidade / engine
 import requests  # framework de teste de API
 import json
 
+from utils.utils import ler_csv
+
 # 2 - clase (opcional no Python, em muitos casos)
 
 # 2.1 - Atributos ou variaveis
@@ -105,3 +107,44 @@ def test_delete_pet():
     assert response_body['type'] == 'unknown'
     assert response_body['message'] == str(pet_id)
 
+@pytest.mark.parametrize('pet_id,category_id,category_name,pet_name,tags,status',
+                         ler_csv('./fixtures/csv/pets.csv') 
+                        )
+
+def test_post_pet_dinamico(pet_id, category_id, category_name, pet_name, tags, status):
+    pet = {}
+    pet['id'] = int(pet_id)
+    pet['category'] = {}
+    pet['category']['id'] = int(category_id)
+    pet['category']['name'] = category_name
+    pet['name'] = pet_name
+    pet['photoUrls'] = []
+    pet['photoUrls'].append('')
+    pet['tags'] = []
+    
+    tags = tags.split(';')
+    for tag in tags:
+        tag = tag.split('-')
+        tag_formatada = {}
+        tag_formatada['id'] = int(tag[0])
+        tag_formatada['name'] = tag[1]
+        pet['tags'].append(tag_formatada)
+    
+    pet['status'] = status
+
+    pet = json.dumps(obj=pet, indent=4)
+    # print('\n' + pet)
+
+    response = requests.post(
+        url=url,
+        headers=headers,
+        data=pet,
+        timeout=5   
+    )
+
+    response_body = response.json()
+
+    assert response.status_code == 200
+    assert response_body['id'] == int(pet_id)
+    assert response_body['name'] == pet_name
+    assert response_body['status'] == status

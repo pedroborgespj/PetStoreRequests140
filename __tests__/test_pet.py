@@ -14,7 +14,6 @@ pet_category_id = 1
 pet_category_name = "dog"
 pet_tag_id = 1
 pet_tag_name = "vacinado"
-pet_status = "available"
 
 url='https://petstore.swagger.io/v2/pet'
 headers = {'Content-type': 'application/json'}
@@ -63,4 +62,46 @@ def test_get_pet():
     assert response_body['name'] == pet_name
     assert response_body['category']['id'] == pet_category_id
     assert response_body['tags'][0]['id'] == pet_tag_id
-    assert response_body['status'] == pet_status
+    assert response_body['status'] == 'available'
+
+def test_put_pet():
+    pet = open('./fixtures/json/pet2.json')
+    data = json.loads(pet.read())
+
+    response = requests.put(
+    url = url,
+    headers = headers,
+    data = json.dumps(data),
+    timeout = 5
+    )
+
+    response_body = response.json()
+
+    assert response.status_code == 200
+    assert response_body['id'] == pet_id
+    assert response_body['name'] == pet_name
+    assert response_body['category']['id'] == pet_category_id
+    assert response_body['category']['name'] == pet_category_name
+    assert response_body['tags'][0]['id'] == pet_tag_id
+    assert response_body['tags'][0]['name'] == pet_tag_name
+    assert response_body['status'] == 'sold'
+
+def test_delete_pet():
+    # Configura
+    # Dados de entrada e saída / resultado esperado estão na seção de atributos antes das funções
+
+        # Executa
+    response = requests.delete(
+        url= f'{url}/{pet_id}',
+        headers= headers
+        # nao tem corpo da mensagem / body
+    )
+
+    # Valida
+    response_body = response.json()
+
+    assert response.status_code == 200
+    assert response_body['code'] == 200
+    assert response_body['type'] == 'unknown'
+    assert response_body['message'] == str(pet_id)
+

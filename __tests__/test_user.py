@@ -3,8 +3,6 @@ import pytest    # framework de teste de unidade / engine
 import requests  # framework de teste de API
 import json
 
-from utils.utils import ler_csv
-
 # 2 - clase (opcional no Python, em muitos casos)
 
 # 2.1 - Atributos ou variaveis
